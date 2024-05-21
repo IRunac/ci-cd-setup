@@ -45,9 +45,9 @@ jobs:
     working_directory: ~/demo
     executor: node
     steps:
+      - checkout
       - attach_workspace:
           at: .
-      - checkout
       - aws-cli/setup:
           aws_access_key_id: AWS_ACCESS_KEY
           aws_secret_access_key: AWS_SECRET_KEY
