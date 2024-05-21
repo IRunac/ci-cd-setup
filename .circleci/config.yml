@@ -14,137 +14,77 @@ executors:
     docker:
       - image: cimg/base:stable-20.04
 
-aws-credentials: &aws-credentials
-  access_key: AWS_ACCESS_KEY
-  account_id: AWS_ACCOUNT_ID
-  secret_key: AWS_SECRET_KEY
-  region: ${AWS_REGION}
-
 jobs:
   build-client:
     working_directory: ~/cicd
-    executor: node
     steps:
       - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - index.html
   build-server:
     working_directory: ~/cicd
     executor:
       name: aws-ecr/default
       docker_layer_caching: true
     steps:
-      - checkout
       - aws-ecr/build_and_push_image:
           auth:
             - aws-cli/setup:
-                <<: *aws-credentials
+                access_key: AWS_ACCESS_KEY
+                secret_key: AWS_SECRET_KEY
+                region: "us-east-1"
           attach_workspace: true
-          checkout: false
           push_image: true
-          region: ${AWS_REGION}
-          repo: "kiano_dev_web"
+          region: "us-east-1"
+          repo: "irunac-docker-repo"
           tag: latest,${CIRCLE_SHA1}
   deploy-aws:
     working_directory: ~/cicd
     executor: node
-    parameters:
-      access_key:
-        type: string
-      secret_key:
-        type: string
-      region:
-        type: string
-      account_id:
-        type: string
-      ecr_repo_server:
-        type: string
-      stack:
-        type: string
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - aws-cli/setup:
-          aws_access_key_id: << parameters.access_key >>
-          aws_secret_access_key: << parameters.secret_key >>
-          region: << parameters.region >>
+          access_key: AWS_ACCESS_KEY
+          secret_key: AWS_SECRET_KEY
+          region: "us-east-1"
       - pulumi/login
       - node/install-packages:
           app-dir: ./infrastructure
       - run:
           name: Configure envs
           command: |
-            echo 'export SERVER_IMAGE="<< parameters.account_id >>.dkr.ecr.<< parameters.region >>.amazonaws.com/<< parameters.ecr_repo_server >>:${CIRCLE_SHA1}"' >> "$BASH_ENV"
-            echo 'export WORKER_IMAGE="<< parameters.account_id >>.dkr.ecr.<< parameters.region >>.amazonaws.com/<< parameters.ecr_repo_worker >>:${CIRCLE_SHA1}"' >> "$BASH_ENV"
+            echo 'export SERVER_IMAGE="381492093868.dkr.ecr.us-east-1.amazonaws.com/irunac-docker-repo:${CIRCLE_SHA1}"' >> "$BASH_ENV"
             source "$BASH_ENV"
       - pulumi/update:
-          stack: "<< parameters.stack >>"
+          stack: "dev"
           working_directory: ./infrastructure
           skip-preview: true
-      # - pulumi/stack_output:
-      #     stack: "<< parameters.stack >>"
-      #     property_name: frontendBucketName
-      #     env_var: S3_SITE_BUCKET
-      #     working_directory: ./infrastructure
-      # - pulumi/stack_output:
-      #     stack: "<< parameters.stack >>"
-      #     property_name: cloudfrontId
-      #     env_var: CF_DISTRIBUTION_ID
-      #     working_directory: ./infrastructure
-      - run:
-          name: Store pulumi output as env file
-          command: cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-    # docker:
-    #   - image: cimg/base:stable
-    # steps:
-    #   - run:
-    #       name: deploy
-    #       command: '#e.g. ./deploy.sh'
-
-  deploy-frontend:
-    working_directory: ~/cicd
-    parameters:
-      access_key:
-        type: string
-      secret_key:
-        type: string
-      region:
-        type: string
-    executor: base
-    steps:
-      - attach_workspace:
-          at: .
-      - aws-cli/setup:
-          aws_access_key_id: << parameters.access_key >>
-          aws_secret_access_key: << parameters.secret_key >>
-          region: << parameters.region >>
-      - run:
-          name: Set environment variables
-          command: cat bash.env >> $BASH_ENV
+      - pulumi/stack_output:
+          stack: "dev"
+          property_name: frontendBucketName
+          env_var: S3_SITE_BUCKET
+          working_directory: ./infrastructure
+      - pulumi/stack_output:
+          stack: "dev"
+          property_name: cloudfrontId
+          env_var: CF_DISTRIBUTION_ID
+          working_directory: ./infrastructure
       - run:
           name: Deploy to S3
           command: |
-            aws s3 sync dist s3://${S3_SITE_BUCKET} --no-progress --delete
+            aws s3 sync index.html s3://${S3_SITE_BUCKET} --no-progress --delete
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTION_ID} --paths "/*"
 
 workflows:
   build-and-deploy:
     jobs:
-      - build-client:
-      - build-server:
-          <<: *aws-credentials
-          # account_id: ${AWS_ACCOUNT_ID}
-          ecr_repo: irunac-docker-repo
+      - build-client
+      - build-server
       - deploy-aws:
-          <<: *aws-credentials
-          # account_id: ${AWS_ACCOUNT_ID}
-          ecr_repo_server: irunac-docker-repo
-          stack: dev
-          requires:
-            - build-server
-      - deploy-frontend:
-          <<: *aws-credentials
           requires:
             - build-client
-            - deploy-aws
+            - build-server

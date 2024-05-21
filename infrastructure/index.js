@@ -22,5 +22,7 @@ const backend = {
   type: 'WEB_SERVER', serviceName: 'api', image: imageUri, domain, hostedZoneId
 };
 const project = new Project('demo', { services: [frontend, backend] });
-
-module.exports = project;
+module.exports = { 
+  frontendBucketName: project.services.frontend.bucket.bucket, 
+  cloudfrontId: project.services.frontend.cloudfront.id
+};
