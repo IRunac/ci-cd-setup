@@ -8,6 +8,7 @@ const awsConfig = new pulumi.Config('aws');
 const irunacConfig = new pulumi.Config('irunac');
 const irunacAwsConfig = new pulumi.Config('irunacAws');
 
+const region = awsConfig.require('region');
 const domain = irunacConfig.require('domain');
 const hostedZoneId = irunacAwsConfig.require('hostedZoneId');
 const imageUri = process.env.SERVER_IMAGE;
