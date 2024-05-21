@@ -23,7 +23,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - index.html
+            - client
   build-server:
     working_directory: ~/cicd
     executor:
@@ -77,7 +77,7 @@ jobs:
       - run:
           name: Deploy to S3
           command: |
-            aws s3 sync index.html s3://${S3_SITE_BUCKET} --no-progress --delete
+            aws s3 sync client s3://${S3_SITE_BUCKET} --no-progress --delete
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTION_ID} --paths "/*"
 
 workflows:
