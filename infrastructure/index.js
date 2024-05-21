@@ -17,7 +17,7 @@ const frontend = {
   type: 'STATIC_SITE', serviceName: 'frontend', domain, hostedZoneId
 };
 const backend = {
-  type: 'WEB_SERVER', serviceName: 'api', image: imageUri, domain, hostedZoneId
+  type: 'WEB_SERVER', port: 3000, serviceName: 'api', image: imageUri, domain, hostedZoneId
 };
 const project = new Project('demo', { services: [frontend, backend] });
 module.exports = { 
