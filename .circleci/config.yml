@@ -17,6 +17,7 @@ executors:
 jobs:
   build-client:
     working_directory: ~/cicd
+    executor: base
     steps:
       - checkout
       - persist_to_workspace:
@@ -32,8 +33,8 @@ jobs:
       - aws-ecr/build_and_push_image:
           auth:
             - aws-cli/setup:
-                access_key: AWS_ACCESS_KEY
-                secret_key: AWS_SECRET_KEY
+                aws_access_key_id: AWS_ACCESS_KEY
+                aws_secret_access_key: AWS_SECRET_KEY
                 region: "us-east-1"
           attach_workspace: true
           push_image: true
@@ -48,8 +49,8 @@ jobs:
           at: .
       - checkout
       - aws-cli/setup:
-          access_key: AWS_ACCESS_KEY
-          secret_key: AWS_SECRET_KEY
+          aws_access_key_id: AWS_ACCESS_KEY
+          aws_secret_access_key: AWS_SECRET_KEY
           region: "us-east-1"
       - pulumi/login
       - node/install-packages:
