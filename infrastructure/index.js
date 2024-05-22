@@ -2,8 +2,7 @@ const aws = require('@pulumi/aws');
 const awsx = require('@pulumi/awsx');
 const pulumi = require('@pulumi/pulumi');
 const { Project } = require('@studion/infra-code-blocks');
-// const stack = pulumi.getStack();
-// console.log(stack);
+
 const awsConfig = new pulumi.Config('aws');
 const irunacConfig = new pulumi.Config('irunac');
 const irunacAwsConfig = new pulumi.Config('irunacAws');
