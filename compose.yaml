@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      context: .
+    environment:
+      - NODE_ENV=production
+      - IP=0.0.0.0
+      - PORT=80
+    ports:
+      - 80:80

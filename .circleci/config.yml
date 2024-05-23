@@ -1,0 +1,90 @@
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@4.1.3
+  aws-ecr: circleci/aws-ecr@9.0.4
+  node: circleci/node@5.2.0
+  pulumi: pulumi/pulumi@2.1.0
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:20.5.1
+  base:
+    docker:
+      - image: cimg/base:stable-20.04
+
+jobs:
+  build-client:
+    working_directory: ~/demo
+    executor: base
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - client
+  build-server:
+    working_directory: ~/demo
+    executor:
+      name: aws-ecr/default
+      docker_layer_caching: true
+    steps:
+      - aws-ecr/build_and_push_image:
+          auth:
+            - aws-cli/setup:
+                aws_access_key_id: AWS_ACCESS_KEY
+                aws_secret_access_key: AWS_SECRET_KEY
+                region: "us-east-1"
+          attach_workspace: true
+          push_image: true
+          region: "us-east-1"
+          repo: "irunac-docker-repo"
+          tag: latest,${CIRCLE_SHA1}
+  deploy-aws:
+    working_directory: ~/demo
+    executor: node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/setup:
+          aws_access_key_id: AWS_ACCESS_KEY
+          aws_secret_access_key: AWS_SECRET_KEY
+          region: "us-east-1"
+      - pulumi/login
+      - node/install-packages:
+          app-dir: ./infrastructure
+      - run:
+          name: Configure envs
+          command: |
+            echo 'export SERVER_IMAGE="381492093868.dkr.ecr.us-east-1.amazonaws.com/irunac-docker-repo:${CIRCLE_SHA1}"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+      - pulumi/update:
+          stack: "dev"
+          working_directory: ./infrastructure
+          skip-preview: true
+      - pulumi/stack_output:
+          stack: "dev"
+          property_name: frontendBucketName
+          env_var: S3_SITE_BUCKET
+          working_directory: ./infrastructure
+      - pulumi/stack_output:
+          stack: "dev"
+          property_name: cloudfrontId
+          env_var: CF_DISTRIBUTION_ID
+          working_directory: ./infrastructure
+      - run:
+          name: Deploy to S3
+          command: |
+            aws s3 sync client s3://${S3_SITE_BUCKET} --no-progress --delete
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTION_ID} --paths "/*"
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - build-client
+      - build-server
+      - deploy-aws:
+          requires:
+            - build-client
+            - build-server

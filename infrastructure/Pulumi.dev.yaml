@@ -1,0 +1,4 @@
+config:
+  irunac:domain: irunac.gostudion.com
+  aws:region: us-east-1
+  irunacAws:hostedZoneId: Z0424600K0YNWEODA0Y9

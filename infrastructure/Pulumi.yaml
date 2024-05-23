@@ -1,0 +1,6 @@
+name: ci-cd
+runtime:
+  name: nodejs
+  options:
+    typescript: false
+description: CI CD training
