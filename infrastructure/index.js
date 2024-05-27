@@ -23,7 +23,8 @@ const backend = {
   domain: `api.${domain}`,
   hostedZoneId,
   environment: [
-    { name: 'IP', value: `api.${domain}` },
+    { name: 'HOSTNAME', value: `api.${domain}` },
+    { name: 'IP', value: `0.0.0.0` },
     { name: 'PORT', value: '3000' }
   ]
 };
