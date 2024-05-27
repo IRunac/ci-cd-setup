@@ -22,10 +22,10 @@ const backend = {
   image: imageUri,
   domain: `api.${domain}`,
   hostedZoneId,
-  environment: {
-    IP: `api.${domain}`,
-    PORT: '3000'
-  }
+  environment: [
+    { name: 'IP', value: `api.${domain}` },
+    { name: 'PORT', value: '3000' }
+  ]
 };
 const project = new Project('demo', { services: [frontend, backend] });
 module.exports = { 
