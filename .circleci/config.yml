@@ -16,7 +16,7 @@ executors:
 jobs:
   build-client:
     working_directory: ~/demo
-    executor: base
+    executor: node
     steps:
       - checkout
       - run:
