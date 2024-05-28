@@ -1,7 +1,7 @@
 
 FROM node:20.5.1
 WORKDIR /app
-COPY package*.json ./
+COPY ./src/server/package*.json ./
 RUN npm install
-COPY . .
+COPY ./src/server .
 CMD ["npm", "start"]
