@@ -19,6 +19,9 @@ jobs:
     executor: base
     steps:
       - checkout
+      - run:
+          name: Install Dependencies
+          command: npm install
       - persist_to_workspace:
           root: .
           paths:
