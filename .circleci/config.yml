@@ -22,10 +22,10 @@ jobs:
       - run:
           name: Install Dependencies
           command: cd src/client; npm install
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - client
+      - persist_to_workspace:
+          root: .
+          paths:
+            - client
   build-server:
     working_directory: ~/demo
     executor:
