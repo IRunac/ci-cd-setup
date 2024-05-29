@@ -15,7 +15,7 @@ executors:
 
 jobs:
   build-client:
-    working_directory: ~/ci-cd-setup/src/client
+    working_directory: ~/demo/ci-cd-setup/src/client
     executor: node
     steps:
       - checkout
