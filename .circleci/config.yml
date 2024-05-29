@@ -22,10 +22,13 @@ jobs:
       - run:
           name: Install Dependencies
           command: cd src/client; npm install
+      - run:
+          name: Build frontend
+          command: cd src/client; npm run build
       - persist_to_workspace:
           root: src
           paths:
-            - client
+            - dist
   build-server:
     working_directory: ~/demo
     executor:
