@@ -23,7 +23,7 @@ jobs:
           name: Install Dependencies
           command: cd src/client; npm install
       - persist_to_workspace:
-          root: .
+          root: src/client
           paths:
             - client
   build-server:
