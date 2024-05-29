@@ -19,7 +19,7 @@ jobs:
     executor: node
     steps:
       - checkout
-        path: ~/cicd/src/client
+          path: ~/cicd/src/client
       - run:
           name: Install Dependencies
           command: npm install
