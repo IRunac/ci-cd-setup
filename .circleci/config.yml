@@ -26,7 +26,7 @@ jobs:
           name: Build frontend
           command: cd src/client; npm run build
       - persist_to_workspace:
-          root: src
+          root: src/client
           paths:
             - dist
   build-server:
@@ -82,7 +82,7 @@ jobs:
       - run:
           name: Deploy to S3
           command: |
-            aws s3 sync client s3://${S3_SITE_BUCKET} --no-progress --delete
+            aws s3 sync dist s3://${S3_SITE_BUCKET} --no-progress --delete
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTION_ID} --paths "/*"
 
 workflows:
