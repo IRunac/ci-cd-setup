@@ -15,7 +15,7 @@ executors:
 
 jobs:
   build-client:
-    working_directory: ~/demo/cicd/src/client
+    working_directory: ~/cicd/src/client
     executor: node
     steps:
       - checkout
