@@ -19,10 +19,9 @@ jobs:
     executor: node
     steps:
       - checkout
-          path: src/client
       - run:
           name: Install Dependencies
-          command: npm install
+          command: cd src/client; npm install
       # - persist_to_workspace:
       #     root: .
       #     paths:
