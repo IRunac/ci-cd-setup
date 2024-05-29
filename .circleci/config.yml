@@ -15,17 +15,18 @@ executors:
 
 jobs:
   build-client:
-    working_directory: ~/demo/src/client
+    working_directory: ~/demo
     executor: node
     steps:
       - checkout
+          path: src/client
       - run:
           name: Install Dependencies
           command: npm install
-      - persist_to_workspace:
-          root: .
-          paths:
-            - src/client
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - client
   build-server:
     working_directory: ~/demo
     executor:
