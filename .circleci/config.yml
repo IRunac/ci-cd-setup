@@ -15,11 +15,10 @@ executors:
 
 jobs:
   build-client:
-    working_directory: ~/demo
+    working_directory: ~/src/client
     executor: node
     steps:
       - checkout
-          path: ~/cicd/src/client
       - run:
           name: Install Dependencies
           command: npm install
