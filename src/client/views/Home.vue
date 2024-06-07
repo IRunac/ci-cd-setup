@@ -1,4 +1,5 @@
 <script>
+  import api from '../axios';
   export default {
     name: 'Home',
     data () {
@@ -9,9 +10,8 @@
     methods: {
       async fetch() {
         try {
-          const response = await fetch('https://api.irunac.gostudion.com/api/data');
-          const data = await response.json();
-          this.fetchData = data.message;
+          const response = await api.get(`/data`);
+          this.fetchData = response.data;
         } catch (error) {
           console.error(error);
         }
