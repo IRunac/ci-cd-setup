@@ -10,7 +10,7 @@ const irunacAwsConfig = new pulumi.Config('irunacAws');
 const region = awsConfig.require('region');
 const domain = irunacConfig.require('domain');
 const hostedZoneId = irunacAwsConfig.require('hostedZoneId');
-const imageUri = process.env.SERVER_IMAGE;
+const imageUri = process.env.SERVER_IMAGE || '381492093868.dkr.ecr.us-east-1.amazonaws.com/irunac-docker-repo';
 
 const frontend = {
   type: 'STATIC_SITE', serviceName: 'frontend', domain, hostedZoneId
